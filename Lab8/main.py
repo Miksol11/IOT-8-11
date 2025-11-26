@@ -3,7 +3,7 @@ import RPi.GPIO as GPIO
 import time
 
 number_of_leds = 4
-hz = 50
+hz = 200
 active_led = 0
 debounce_time = 200
 intensity = [50, 50, 50, 50]
@@ -19,6 +19,14 @@ def changeIntensity(step: int):
     intensity[active_led] = max(0, min(intensity[active_led] + step, 100))
     diodes[active_led].ChangeDutyCycle(intensity[active_led])
 
+def encoderCallback(channel):
+    if channel == encoderLeft:
+        if GPIO.input(encoderRight) == 1:
+            changeIntensity(-10)
+    else:
+        if GPIO.input(encoderLeft) == 1:
+            changeIntensity(10)
+
 def stopAllDiodes():
     for diode in diodes:
         diode.stop()
@@ -32,8 +40,8 @@ def setup():
     GPIO.add_event_detect(buttonRed, GPIO.FALLING, callback=lambda l: changeLED(-1), bouncetime=debounce_time)
     GPIO.add_event_detect(buttonGreen, GPIO.FALLING, callback=lambda l: changeLED(1), bouncetime=debounce_time)
 
-    GPIO.add_event_detect(encoderLeft, GPIO.FALLING, callback=lambda l: changeIntensity(10), bouncetime=debounce_time)
-    GPIO.add_event_detect(encoderRight, GPIO.FALLING, callback=lambda l: changeIntensity(-10), bouncetime=debounce_time)
+    GPIO.add_event_detect(encoderLeft, GPIO.FALLING, callback=encoderCallback, bouncetime=50)
+    GPIO.add_event_detect(encoderRight, GPIO.FALLING, callback=encoderCallback, bouncetime=50)
 
     startAllDiodes()
     changeLED(0)
