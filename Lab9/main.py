@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-# Wykorzystując treść opisaną w lab09.pdf proszę o wykonanie zadania:
-# Napisz program, który zmierzy temperaturę, ciśnienie i wilgotność. Wartości te mają się wyświetlać na konsoli. 
-# Dodatkowo korzystając z wzoru na wysokość barometryczną (https://ep.com.pl/projekty/projekty-ep/15452-wysokosciomierz-barometryczny)
-# proszę obliczyć aktualną wysokość nad poziomem morza.
-
 from config import *
 import board
 import busio
@@ -16,7 +11,7 @@ def setup():
     i2c = busio.I2C(board.SCL, board.SDA)
     bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c, 0x76)
 
-    bme280.sea_level_pressure = 1013.25
+    bme280.sea_level_pressure = 1015.5
     bme280.standby_period = adafruit_bme280.STANDBY_TC_500
     bme280.iir_filter = adafruit_bme280.IIR_FILTER_X16
     bme280.overscan_pressure = adafruit_bme280.OVERSCAN_X16
@@ -26,8 +21,8 @@ def setup():
     return bme280
 
 def measurements(bme280):
-    # os.system("clear") #Raspberry
-    os.system("cls") #Windows
+    os.system("clear") #Raspberry
+    #os.system("cls") #Windows
 
     altitude = 44330 * (1 - (bme280.pressure/bme280.sea_level_pressure) ** (1/5.255))
 
@@ -41,7 +36,7 @@ if __name__ == "__main__":
     try:
         while True:
             measurements(bme280)
-            time.sleep(0.5)
+            time.sleep(1)
     except KeyboardInterrupt:
         pass
     finally:

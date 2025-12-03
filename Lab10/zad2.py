@@ -11,9 +11,9 @@ import board
 import neopixel
 
 card_present = False
-last_time = time.time()
 pixels = neopixel.NeoPixel(
         board.D18, 8, brightness=1.0/32, auto_write=False)
+stable_reads = 0
 
 def effects(state):
     global pixels
@@ -32,23 +32,25 @@ def uid_to_int(uid):
     return num
 
 def rfidRead(MIFAREReader):
-    global card_present, last_time
+    global card_present, stable_reads
 
     (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
-
     if status == MIFAREReader.MI_OK:
         (status, uid) = MIFAREReader.MFRC522_Anticoll()
         if status == MIFAREReader.MI_OK:
+            stable_reads = 0
             uid_num = uid_to_int(uid)
-            last_time = time.time()
             if not card_present:
                 print("UID: ", uid_num, " Time: ", datetime.datetime.now().strftime("%H:%M:%S"))
                 effects(True)
-                time.sleep(1)
+                time.sleep(0.2)
                 effects(False)
                 card_present = True
+
+        return
     else:
-        if(time.time() - last_time >= 0.2):
+        stable_reads += 1
+        if(stable_reads >= 5):
             card_present = False
         
 
