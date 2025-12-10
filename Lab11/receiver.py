@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import time
 
-broker = "localhost"
+broker = "10.108.33.125"
 topic = "rfid/card"
 
 client = mqtt.Client()
